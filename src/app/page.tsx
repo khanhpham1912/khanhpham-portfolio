@@ -324,3 +324,20 @@ export default async function Home() {
     </>
   )
 }
+
+// Critical React Interview Questions for Top-Tier Developers:
+
+// 1️⃣ How would you design a custom hook for complex data fetching with caching and error handling?
+// A]: Build a reusable custom hook leveraging useEffect and useState, incorporating caching logic and robust error handling through try/catch.
+
+// 2️⃣ How can you optimize large-scale React applications to reduce bundle size and improve load times?
+//  A]: Implement code splitting, tree shaking, lazy loading, and utilize bundle analysis tools to trim the bundle and speed up load times.
+
+// 3️⃣ What are the nuances of using memoization (e.g., useMemo and React.memo) in React, and when might it hurt performance?
+//  A]: Memoization can prevent unnecessary renders but may backfire if overused or misconfigured, leading to stale values and extra overhead.
+
+// 4️⃣ How does integrating TypeScript with React improve code quality, and what challenges might you face during migration?
+// A]: TypeScript enhances code quality with static type checking and better tooling, though migration may involve handling complex types and refactoring legacy code.
+
+// 5️⃣ What is reconciliation in React?
+//  A]: Reconciliation is the process of diffing virtual DOM trees to efficiently update the real DOM with only the necessary changes.
