@@ -10,6 +10,7 @@ import {
   InstagramIcon,
   LinkedInIcon,
   XIcon,
+  ZaloIcon,
 } from '@/components/SocialIcons'
 import logoAirbnb from '@/images/logos/airbnb.svg'
 import logoFacebook from '@/images/logos/facebook.svg'
@@ -120,7 +121,7 @@ function Newsletter() {
         <MailIcon className="h-6 w-6 flex-none" />
         <span className="ml-3">Stay up to date</span>
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
         Get notified when I publish something new, and unsubscribe at any time.
       </p>
       <div className="mt-6 flex">
@@ -129,7 +130,7 @@ function Newsletter() {
           placeholder="Email address"
           aria-label="Email address"
           required
-          className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(--spacing(2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-hidden sm:text-sm dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10"
+          className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(--spacing(2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-hidden sm:text-sm dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10"
         />
         <Button type="submit" className="ml-4 flex-none">
           Join
@@ -167,12 +168,12 @@ function Role({ role }: { role: Role }) {
           {role.company}
         </dd>
         <dt className="sr-only">Role</dt>
-        <dd className="text-xs text-zinc-500 dark:text-zinc-400">
+        <dd className="text-xs text-zinc-500 dark:text-zinc-300">
           {role.title}
         </dd>
         <dt className="sr-only">Date</dt>
         <dd
-          className="ml-auto text-xs text-zinc-400 dark:text-zinc-500"
+          className="ml-auto text-xs text-zinc-300 dark:text-zinc-500"
           aria-label={`${startLabel} until ${endLabel}`}
         >
           <time dateTime={startDate}>{startLabel}</time>{' '}
@@ -187,35 +188,25 @@ function Role({ role }: { role: Role }) {
 function Resume() {
   const resume: Array<Role> = [
     {
-      company: 'Planetaria',
-      title: 'CEO',
+      company: 'Wareflex Sea',
+      title: 'Frontend Developer',
       logo: logoPlanetaria,
-      start: '2019',
-      end: {
-        label: 'Present',
-        dateTime: new Date().getFullYear().toString(),
-      },
+      start: '03/2023',
+      end: '02/2025',
     },
     {
-      company: 'Airbnb',
-      title: 'Product Designer',
+      company: 'INSEAD',
+      title: 'Freelance Frontend Developer',
       logo: logoAirbnb,
-      start: '2014',
-      end: '2019',
+      start: '02/2023',
+      end: '07/2023',
     },
     {
-      company: 'Facebook',
-      title: 'iOS Software Engineer',
+      company: 'HCL Tech',
+      title: 'Software Engineer Internship',
       logo: logoFacebook,
-      start: '2011',
-      end: '2014',
-    },
-    {
-      company: 'Starbucks',
-      title: 'Shift Supervisor',
-      logo: logoStarbucks,
-      start: '2008',
-      end: '2011',
+      start: '11/2022',
+      end: '02/2023',
     },
   ]
 
@@ -277,37 +268,44 @@ export default async function Home() {
   return (
     <>
       <Container className="mt-9">
-        <div className="max-w-2xl">
+        <div className="flex w-full flex-col gap-6">
           <h1 className="text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
-            Software designer, founder, and amateur astronaut.
+            Hi, I'm Khanh. Welcome to my journey
           </h1>
-          <p className="mt-6 text-base text-zinc-600 dark:text-zinc-400">
-            I’m Spencer, a software designer and entrepreneur based in New York
-            City. I’m the founder and CEO of Planetaria, where we develop
-            technologies that empower regular people to explore space on their
-            own terms.
+          <p className="mt-4 text-base text-zinc-600 dark:text-zinc-300">
+            I'm a web developer and a curious learner who loves exploring new
+            ideas and sharing knowledge. This blog is where I document what I
+            read, study, and discover—whether it's about problem-solving,
+            creativity, or ways to improve how we work and think.
+            <br />
+          </p>
+          <p className="text-base text-zinc-600 dark:text-zinc-300">
+            If you enjoy learning and exploring different perspectives, I hope
+            you find something interesting here!
           </p>
           <div className="mt-6 flex gap-6">
-            <SocialLink href="#" aria-label="Follow on X" icon={XIcon} />
             <SocialLink
-              href="#"
-              aria-label="Follow on Instagram"
-              icon={InstagramIcon}
-            />
-            <SocialLink
-              href="#"
+              target="_blank"
+              href="https://github.com/khanhpham1912"
               aria-label="Follow on GitHub"
               icon={GitHubIcon}
             />
             <SocialLink
-              href="#"
+              target="_blank"
+              href="https://www.linkedin.com/in/phamquangkhanh/"
               aria-label="Follow on LinkedIn"
               icon={LinkedInIcon}
+            />
+            <SocialLink
+              target="_blank"
+              href="https://zalo.me/0902621322"
+              aria-label="Follow on Zalo"
+              icon={ZaloIcon}
             />
           </div>
         </div>
       </Container>
-      <Photos />
+      {/* <Photos /> */}
       <Container className="mt-24 md:mt-28">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
@@ -324,20 +322,3 @@ export default async function Home() {
     </>
   )
 }
-
-// Critical React Interview Questions for Top-Tier Developers:
-
-// 1️⃣ How would you design a custom hook for complex data fetching with caching and error handling?
-// A]: Build a reusable custom hook leveraging useEffect and useState, incorporating caching logic and robust error handling through try/catch.
-
-// 2️⃣ How can you optimize large-scale React applications to reduce bundle size and improve load times?
-//  A]: Implement code splitting, tree shaking, lazy loading, and utilize bundle analysis tools to trim the bundle and speed up load times.
-
-// 3️⃣ What are the nuances of using memoization (e.g., useMemo and React.memo) in React, and when might it hurt performance?
-//  A]: Memoization can prevent unnecessary renders but may backfire if overused or misconfigured, leading to stale values and extra overhead.
-
-// 4️⃣ How does integrating TypeScript with React improve code quality, and what challenges might you face during migration?
-// A]: TypeScript enhances code quality with static type checking and better tooling, though migration may involve handling complex types and refactoring legacy code.
-
-// 5️⃣ What is reconciliation in React?
-//  A]: Reconciliation is the process of diffing virtual DOM trees to efficiently update the real DOM with only the necessary changes.
