@@ -12,11 +12,6 @@ export const metadata: Metadata = {
   },
   description:
     "I'm a web developer and a curious learner who loves exploring new ideas and sharing knowledge",
-  // alternates: {
-  //   types: {
-  //     'application/rss+xml': `${process.env.NEXT_PUBLIC_SITE_URL}/feed.xml`,
-  //   },
-  // },
 }
 
 export default function RootLayout({

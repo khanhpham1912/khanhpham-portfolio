@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
@@ -12,9 +11,9 @@ import {
   PopoverPanel,
 } from '@headlessui/react'
 import clsx from 'clsx'
-
-import { Container } from '@/components/ui/Container'
-import avatarImage from '@/images/avatar.jpg'
+import { Container } from '@/components/ui'
+import Image from 'next/image'
+import webLogo from '@/public/web_logo.png'
 
 function CloseIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -230,11 +229,11 @@ function Avatar({
     <Link
       href="/"
       aria-label="Home"
-      className={clsx(className, 'pointer-events-auto')}
+      className={clsx(className, `pointer-events-auto`)}
       {...props}
     >
       <Image
-        src={avatarImage}
+        src={webLogo}
         alt=""
         sizes={large ? '4rem' : '2.25rem'}
         className={clsx(

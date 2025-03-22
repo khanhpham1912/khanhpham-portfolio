@@ -100,7 +100,7 @@ export default function Projects() {
       title="Projects"
       intro="A collection of my professional work and projects, showcasing various systems and applications I've developed."
     >
-      <div className="mx-auto max-w-8xl">
+      <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {projects.map((project) => (
             <ProjectCard {...project} key={project.name} />
