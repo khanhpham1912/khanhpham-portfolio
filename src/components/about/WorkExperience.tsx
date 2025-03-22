@@ -7,7 +7,7 @@ import {
   FileText,
   Target,
 } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/Tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 
 export const WorkExperience = ({
   experiences,

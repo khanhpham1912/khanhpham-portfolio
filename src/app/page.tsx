@@ -37,9 +37,9 @@ const resume: Array<RoleProps> = [
   },
 ]
 
-import { Caveat } from 'next/font/google'
 import { cn } from '@/lib/utils'
-const caveat = Caveat({ subsets: ['latin'] })
+// import { Caveat } from 'next/font/google'
+// const caveat = Caveat({ subsets: ['latin'] })
 
 export default async function Home() {
   const articles = (await getAllArticles()).slice(0, 4)
