@@ -1,7 +1,5 @@
 import { type Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
-import clsx from 'clsx'
 import {
   Briefcase,
   Calendar,
@@ -11,10 +9,10 @@ import {
   CheckCircle,
   Target,
 } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
-import { Container } from '@/components/Container'
-import { GitHubIcon, LinkedInIcon } from '@/components/SocialIcons'
+import { Container } from '@/components/ui/Container'
+import { GitHubIcon, LinkedInIcon } from '@/components/ui/SocialIcons'
 import portraitImage from '@/images/portrait.jpg'
 
 interface Experience {

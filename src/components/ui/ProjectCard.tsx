@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { Card } from '@/components/Card'
+import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
 import AutoPlay from 'embla-carousel-autoplay'
