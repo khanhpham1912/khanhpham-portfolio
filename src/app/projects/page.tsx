@@ -8,11 +8,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'A comprehensive system for inventory tracking, workflow management, and data operations for warehouses.',
-    images: [
-      '/images/projects/warehouse-1.png',
-      '/images/projects/warehouse-2.png',
-      '/images/projects/warehouse-3.png',
-    ],
+    images: ['/wms/wms1.png', '/wms/wms2.png', '/wms/wms3.png'],
     features: [
       'Item CRUD, inbound/outbound workflows, role management',
       'Scanner integrations for efficient inventory tracking',
@@ -25,6 +21,8 @@ const projects = [
       'TanStack Query',
       'Ant Design',
       'Web Workers',
+      'SheetJS',
+      'TailwindCSS',
     ],
   },
   {
@@ -32,11 +30,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'Real-time vehicle tracking and shipment management system with map integrations.',
-    images: [
-      '/images/projects/transport-1.png',
-      '/images/projects/transport-2.png',
-      '/images/projects/transport-3.png',
-    ],
+    images: ['/tms/tms1.png', '/tms/tms2.png', '/tms/tms3.png'],
     features: [
       'Core shipment flows with real-time updates',
       'Real-time vehicle tracking with Amazon Location Service',
@@ -49,6 +43,9 @@ const projects = [
       'Socket.IO',
       'Amazon Location Service',
       'Mapbox',
+      'Web Workers',
+      'SheetJS',
+      'TailwindCSS',
     ],
   },
   {
@@ -56,28 +53,32 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'System for optimizing order processing, booking management, and inventory reporting.',
-    images: [
-      '/images/projects/order-1.png',
-      '/images/projects/order-2.png',
-      '/images/projects/order-3.png',
-    ],
+    images: ['/oms/oms1.png', '/oms/oms2.png', '/oms/oms3.png'],
     features: [
       'Optimized item imports (10,000+ records)',
       'Improved inbound/outbound order management',
       'Booking management with real-time updates',
       'Large-scale inventory reporting with custom field applications',
     ],
-    techStack: ['TypeScript', 'Next.js', 'TanStack Query', 'Ant Design'],
+    techStack: [
+      'TypeScript',
+      'Next.js',
+      'TanStack Query',
+      'Ant Design',
+      'Web Workers',
+      'SheetJS',
+      'TailwindCSS',
+    ],
   },
   {
     name: 'E-commerce Platform',
     company: 'Wareflex Sea',
     description:
-      'Hybrid e-commerce platform linking warehouses and shipping providers with users.',
+      'Hybrid e-commerce platform linking warehouses and shipping, warehouse providers with users.',
     images: [
-      '/images/projects/ecommerce-1.png',
-      '/images/projects/ecommerce-2.png',
-      '/images/projects/ecommerce-3.png',
+      '/platform/platform1.png',
+      '/platform/platform2.png',
+      '/platform/platform3.png',
     ],
     features: [
       'Optimized loading by combining client and server components',
