@@ -12,7 +12,7 @@ import { RoleProps } from '@/models/common'
 import logoWareflex from '@/public/logo/wareflex_logo.jpeg'
 import logoHcl from '@/public/logo/hcltech_logo.jpeg'
 import logoInsead from '@/public/logo/insead_logo.jpeg'
-
+export const revalidate = false
 const resume: Array<RoleProps> = [
   {
     company: 'Wareflex Sea',

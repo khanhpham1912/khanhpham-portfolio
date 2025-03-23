@@ -16,6 +16,8 @@ import platform1 from '@/public/platform/platform1.png'
 import platform2 from '@/public/platform/platform2.png'
 import platform3 from '@/public/platform/platform3.png'
 
+export const revalidate = false
+
 const projects = [
   {
     name: 'Warehouse Management System',

@@ -8,6 +8,8 @@ import {
 } from '@/components/about'
 import { Experience } from '@/models/common'
 
+export const revalidate = false
+
 export const metadata: Metadata = {
   title: 'About',
   description:
