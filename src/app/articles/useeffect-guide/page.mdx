@@ -1,0 +1,359 @@
+import { ArticleLayout } from '@/components/ui'
+
+export const article = {
+  author: 'Khanh Pham',
+  date: '2024-03-23',
+  title: 'useEffect: A Complete Guide to Side Effects in React',
+  description:
+    'Master the useEffect hook in React, understand component lifecycle, and learn how to handle side effects effectively in your components.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+`useEffect` is one of React's most powerful and commonly used hooks. It lets you perform side effects in function components, making it essential for handling tasks like data fetching, subscriptions, or manually changing the DOM. Let's explore everything you need to know about `useEffect`.
+
+## What is useEffect?
+
+`useEffect` is a React Hook that lets you synchronize a component with an external system. It takes two arguments:
+
+1. A setup function with your effect code
+2. An optional array of dependencies
+
+```jsx
+useEffect(setup, dependencies?)
+```
+
+### Basic Structure
+
+```jsx
+import { useEffect, useState } from 'react'
+
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    // Setup: Fetch user data
+    const fetchUser = async () => {
+      const response = await fetch(`/api/users/${userId}`)
+      const data = await response.json()
+      setUser(data)
+    }
+
+    fetchUser()
+
+    // Cleanup: Cancel any pending requests
+    return () => {
+      // Cleanup code here
+    }
+  }, [userId]) // Dependencies array
+
+  if (!user) return <div>Loading...</div>
+  return <div>{user.name}</div>
+}
+```
+
+## When to Use useEffect
+
+You should use `useEffect` when you need to:
+
+1. Fetch data
+2. Set up subscriptions
+3. Update the DOM manually
+4. Set up event listeners
+5. Clean up resources
+
+### When Not to Use useEffect
+
+Avoid using `useEffect` for:
+
+1. Computing derived state (use `useMemo` instead)
+2. Handling user events (use event handlers)
+3. Synchronizing state updates (use `useReducer` or state updates)
+
+## Component Lifecycle and useEffect
+
+Let's compare class component lifecycle methods with `useEffect`:
+
+| Class Component Lifecycle | useEffect Equivalent                       | Description                                    |
+| ------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| `componentDidMount`       | `useEffect(() => {}, [])`                  | Runs after initial render                      |
+| `componentDidUpdate`      | `useEffect(() => {}, [dep1, dep2])`        | Runs after re-renders when dependencies change |
+| `componentWillUnmount`    | `useEffect(() => { return () => {} }, [])` | Cleanup function runs before unmounting        |
+| `shouldComponentUpdate`   | No direct equivalent                       | Use `React.memo` or `useMemo` instead          |
+
+### Lifecycle Example
+
+```jsx
+// Class Component
+class Example extends React.Component {
+  componentDidMount() {
+    console.log('Mounted')
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.count !== this.props.count) {
+      console.log('Count changed')
+    }
+  }
+
+  componentWillUnmount() {
+    console.log('Unmounting')
+  }
+}
+
+// Function Component with useEffect
+function Example({ count }) {
+  useEffect(() => {
+    console.log('Mounted')
+    return () => console.log('Unmounting')
+  }, [])
+
+  useEffect(() => {
+    console.log('Count changed')
+  }, [count])
+}
+```
+
+## Common Use Cases
+
+### 1. Data Fetching
+
+```jsx
+function DataFetching() {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchData() {
+      try {
+        const response = await fetch('https://api.example.com/data')
+        const result = await response.json()
+        if (isMounted) {
+          setData(result)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err)
+        }
+      }
+    }
+
+    fetchData()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  if (error) return <div>Error: {error.message}</div>
+  if (!data) return <div>Loading...</div>
+  return <div>{data.name}</div>
+}
+```
+
+### 2. Event Listeners
+
+```jsx
+function WindowSize() {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  })
+
+  useEffect(() => {
+    function handleResize() {
+      setSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return (
+    <div>
+      Window size: {size.width} x {size.height}
+    </div>
+  )
+}
+```
+
+### 3. Subscriptions
+
+```jsx
+function ChatRoom({ roomId }) {
+  const [messages, setMessages] = useState([])
+
+  useEffect(() => {
+    const subscription = subscribeToRoom(roomId, (message) => {
+      setMessages((prev) => [...prev, message])
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [roomId])
+
+  return (
+    <div>
+      {messages.map((msg) => (
+        <div key={msg.id}>{msg.text}</div>
+      ))}
+    </div>
+  )
+}
+```
+
+## Best Practices
+
+1. **Always Include Dependencies**
+
+   - Include all values from the component scope that are used in the effect
+   - Use the exhaustive-deps ESLint rule
+
+2. **Clean Up Side Effects**
+
+   - Return a cleanup function when setting up subscriptions or event listeners
+   - Cancel pending requests when component unmounts
+
+3. **Split Effects by Purpose**
+
+   - Use multiple `useEffect` hooks for different concerns
+   - Keep effects focused and single-purpose
+
+4. **Avoid Infinite Loops**
+   - Ensure dependencies are properly set
+   - Use `useCallback` or `useMemo` when needed
+
+## Common Pitfalls
+
+### 1. Missing Dependencies
+
+```jsx
+// ❌ Bad: Missing dependency
+useEffect(() => {
+  document.title = `Count: ${count}`
+}, []) // Missing count dependency
+
+// ✅ Good: Include all dependencies
+useEffect(() => {
+  document.title = `Count: ${count}`
+}, [count])
+```
+
+### 2. Stale Closures
+
+```jsx
+// ❌ Bad: Stale closure
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCount(count + 1) // Stale count
+  }, 1000)
+  return () => clearInterval(interval)
+}, []) // Missing count dependency
+
+// ✅ Good: Use functional updates
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCount((c) => c + 1) // Fresh count
+  }, 1000)
+  return () => clearInterval(interval)
+}, [])
+```
+
+## Advanced Patterns
+
+### 1. Custom Hook for Data Fetching
+
+```jsx
+function useDataFetching(url) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchData() {
+      try {
+        const response = await fetch(url)
+        const result = await response.json()
+        if (isMounted) {
+          setData(result)
+          setError(null)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err)
+          setData(null)
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchData()
+    return () => {
+      isMounted = false
+    }
+  }, [url])
+
+  return { data, error, loading }
+}
+```
+
+### 2. Debounced Effect
+
+```jsx
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+```
+
+### 3. Throttled Effect
+
+```jsx
+function useThrottle(value, interval) {
+  const [throttledValue, setThrottledValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setThrottledValue(value)
+    }, interval)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, interval])
+
+  return throttledValue
+}
+```
+
+Remember that `useEffect` is a powerful tool, but with great power comes great responsibility. Always think carefully about when and how to use it, and make sure to clean up after yourself to prevent memory leaks and unexpected behavior.
+
+## References
+
+Meta Platforms, Inc. (2024). useEffect Hook. React Documentation. https://react.dev/reference/react/useEffect

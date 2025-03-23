@@ -1,0 +1,600 @@
+import { ArticleLayout } from '@/components/ui'
+
+export const article = {
+  author: 'Khanh Pham',
+  date: '2024-03-23',
+  title: 'useReducer: A Comprehensive Guide to State Management in React',
+  description:
+    'Understanding useReducer hook in React, its use cases, and how to effectively manage complex state logic in your components.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+`useReducer` is a powerful React Hook that lets you manage complex state logic in your components. It's particularly useful when you have state logic that involves multiple sub-values or when the next state depends on the previous one. Let's dive deep into understanding and using `useReducer` effectively.
+
+## What is useReducer?
+
+`useReducer` is a React Hook that lets you add a reducer to your component. It takes three parameters:
+
+1. A reducer function that specifies how the state gets updated
+2. An initial state value
+3. (Optional) An initializer function
+
+```jsx
+const [state, dispatch] = useReducer(reducer, initialArg, init?)
+```
+
+### Basic Structure
+
+```jsx
+import { useReducer } from 'react'
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 }
+    case 'decrement':
+      return { count: state.count - 1 }
+    default:
+      throw Error('Unknown action: ' + action.type)
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 })
+
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
+    </>
+  )
+}
+```
+
+## How useReducer Works
+
+### 1. Reducer Function
+
+The reducer function takes two parameters:
+
+- Current state
+- Action object
+
+It should be pure and return the next state:
+
+```jsx
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 }
+    case 'decrement':
+      return { count: state.count - 1 }
+    case 'reset':
+      return { count: 0 }
+    default:
+      return state
+  }
+}
+```
+
+### 2. Dispatch Function
+
+The dispatch function lets you update the state by dispatching actions:
+
+```jsx
+function TodoList() {
+  const [todos, dispatch] = useReducer(todosReducer, [])
+
+  function handleAddTodo(text) {
+    dispatch({
+      type: 'add',
+      text: text,
+    })
+  }
+
+  return (
+    <div>
+      <button onClick={() => handleAddTodo('New Todo')}>Add Todo</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+```
+
+## Advanced Patterns
+
+### 1. Lazy Initialization
+
+You can pass an initializer function as the third argument to `useReducer`. This is useful when the initial state needs to be computed:
+
+```jsx
+function init(initialCount) {
+  return { count: initialCount }
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 }
+    case 'decrement':
+      return { count: state.count - 1 }
+    case 'reset':
+      return init(action.payload)
+    default:
+      throw Error('Unknown action: ' + action.type)
+  }
+}
+
+function Counter({ initialCount = 0 }) {
+  const [state, dispatch] = useReducer(reducer, initialCount, init)
+
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
+      <button
+        onClick={() => dispatch({ type: 'reset', payload: initialCount })}
+      >
+        Reset
+      </button>
+    </>
+  )
+}
+```
+
+### 2. Combined Reducers
+
+For complex applications, you can split your reducer into smaller, more manageable pieces:
+
+```jsx
+function todosReducer(state, action) {
+  switch (action.type) {
+    case 'add_todo':
+      return [...state, { id: Date.now(), text: action.text }]
+    case 'remove_todo':
+      return state.filter((todo) => todo.id !== action.id)
+    default:
+      return state
+  }
+}
+
+function filterReducer(state, action) {
+  switch (action.type) {
+    case 'set_filter':
+      return action.filter
+    default:
+      return state
+  }
+}
+
+function rootReducer(state, action) {
+  return {
+    todos: todosReducer(state.todos, action),
+    filter: filterReducer(state.filter, action),
+  }
+}
+
+function TodoApp() {
+  const [state, dispatch] = useReducer(rootReducer, {
+    todos: [],
+    filter: 'all',
+  })
+
+  return (
+    <div>
+      <Filter
+        value={state.filter}
+        onChange={(filter) => dispatch({ type: 'set_filter', filter })}
+      />
+      <TodoList
+        todos={state.todos}
+        filter={state.filter}
+        onAdd={(text) => dispatch({ type: 'add_todo', text })}
+        onRemove={(id) => dispatch({ type: 'remove_todo', id })}
+      />
+    </div>
+  )
+}
+```
+
+### 3. Middleware Pattern
+
+You can implement middleware to add functionality like logging or async actions:
+
+```jsx
+function loggerMiddleware(dispatch) {
+  return function (action) {
+    console.log('Previous State:', action.state)
+    const result = dispatch(action)
+    console.log('Next State:', action.state)
+    return result
+  }
+}
+
+function asyncMiddleware(dispatch) {
+  return function (action) {
+    if (typeof action === 'function') {
+      return action(dispatch)
+    }
+    return dispatch(action)
+  }
+}
+
+function useReducerWithMiddleware(reducer, initialState, middlewares) {
+  const [state, dispatch] = useReducer(reducer, initialState)
+
+  const enhancedDispatch = middlewares.reduce(
+    (acc, middleware) => middleware(acc),
+    dispatch,
+  )
+
+  return [state, enhancedDispatch]
+}
+
+// Usage
+function TodoApp() {
+  const [state, dispatch] = useReducerWithMiddleware(
+    todoReducer,
+    initialState,
+    [loggerMiddleware, asyncMiddleware],
+  )
+
+  // Async action creator
+  const fetchTodos = () => async (dispatch) => {
+    dispatch({ type: 'fetch_start' })
+    try {
+      const todos = await api.getTodos()
+      dispatch({ type: 'fetch_success', todos })
+    } catch (error) {
+      dispatch({ type: 'fetch_error', error })
+    }
+  }
+
+  useEffect(() => {
+    dispatch(fetchTodos())
+  }, [])
+
+  return <TodoList todos={state.todos} />
+}
+```
+
+## Common Use Cases
+
+### 1. Form State Management
+
+```jsx
+function Form() {
+  const [state, dispatch] = useReducer(formReducer, {
+    name: '',
+    email: '',
+    password: '',
+    errors: {},
+  })
+
+  function handleChange(e) {
+    dispatch({
+      type: 'change',
+      field: e.target.name,
+      value: e.target.value,
+    })
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    dispatch({ type: 'submit' })
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" value={state.name} onChange={handleChange} />
+      <input name="email" value={state.email} onChange={handleChange} />
+      <input
+        name="password"
+        type="password"
+        value={state.password}
+        onChange={handleChange}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+### 2. Complex State Logic
+
+```jsx
+function ShoppingCart() {
+  const [state, dispatch] = useReducer(cartReducer, {
+    items: [],
+    total: 0,
+    discount: 0,
+    status: 'idle',
+  })
+
+  function addItem(item) {
+    dispatch({
+      type: 'add_item',
+      item: item,
+    })
+  }
+
+  function removeItem(itemId) {
+    dispatch({
+      type: 'remove_item',
+      itemId: itemId,
+    })
+  }
+
+  function applyDiscount(code) {
+    dispatch({
+      type: 'apply_discount',
+      code: code,
+    })
+  }
+
+  return (
+    <div>
+      <h2>Shopping Cart</h2>
+      {state.items.map((item) => (
+        <div key={item.id}>
+          {item.name} - ${item.price}
+          <button onClick={() => removeItem(item.id)}>Remove</button>
+        </div>
+      ))}
+      <div>Total: ${state.total}</div>
+      <div>Discount: ${state.discount}</div>
+    </div>
+  )
+}
+```
+
+### 3. State with Multiple Sub-values
+
+```jsx
+function UserProfile() {
+  const [state, dispatch] = useReducer(profileReducer, {
+    user: {
+      name: '',
+      email: '',
+      preferences: {},
+    },
+    settings: {
+      theme: 'light',
+      notifications: true,
+    },
+    status: 'idle',
+    error: null,
+  })
+
+  function updateProfile(data) {
+    dispatch({
+      type: 'update_profile',
+      data: data,
+    })
+  }
+
+  function updateSettings(settings) {
+    dispatch({
+      type: 'update_settings',
+      settings: settings,
+    })
+  }
+
+  return (
+    <div>
+      <h2>Profile</h2>
+      <div>Name: {state.user.name}</div>
+      <div>Email: {state.user.email}</div>
+      <div>Theme: {state.settings.theme}</div>
+      <div>Notifications: {state.settings.notifications ? 'On' : 'Off'}</div>
+    </div>
+  )
+}
+```
+
+## Best Practices
+
+### 1. Action Types
+
+Use constants for action types to prevent typos:
+
+```jsx
+const ActionTypes = {
+  INCREMENT: 'increment',
+  DECREMENT: 'decrement',
+  RESET: 'reset',
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case ActionTypes.INCREMENT:
+      return { count: state.count + 1 }
+    case ActionTypes.DECREMENT:
+      return { count: state.count - 1 }
+    case ActionTypes.RESET:
+      return { count: 0 }
+    default:
+      return state
+  }
+}
+```
+
+### 2. Action Creators
+
+Create functions to generate actions:
+
+```jsx
+function increment() {
+  return { type: ActionTypes.INCREMENT }
+}
+
+function decrement() {
+  return { type: ActionTypes.DECREMENT }
+}
+
+function reset() {
+  return { type: ActionTypes.RESET }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 })
+
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch(increment())}>+</button>
+      <button onClick={() => dispatch(decrement())}>-</button>
+      <button onClick={() => dispatch(reset())}>Reset</button>
+    </>
+  )
+}
+```
+
+### 3. Immutable State Updates
+
+Always return new state objects instead of mutating the existing state:
+
+```jsx
+// ❌ Bad: Mutating state
+function reducer(state, action) {
+  switch (action.type) {
+    case 'update_user':
+      state.user.name = action.name // Don't do this!
+      return state
+  }
+}
+
+// ✅ Good: Creating new state
+function reducer(state, action) {
+  switch (action.type) {
+    case 'update_user':
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          name: action.name,
+        },
+      }
+  }
+}
+```
+
+## Common Pitfalls
+
+### 1. State Updates in Effects
+
+```jsx
+// ❌ Bad: Direct state updates in effect
+useEffect(() => {
+  dispatch({ type: 'set_data', data: someData })
+}, [someData])
+
+// ✅ Good: Use action creators
+useEffect(() => {
+  dispatch(setData(someData))
+}, [someData])
+```
+
+### 2. Missing Dependencies
+
+```jsx
+// ❌ Bad: Missing dependencies in action creator
+const updateUser = (name) => ({
+  type: 'update_user',
+  name,
+})
+
+// ✅ Good: Include all dependencies
+const updateUser = (name, userId) => ({
+  type: 'update_user',
+  name,
+  userId,
+})
+```
+
+### 3. Complex State Logic
+
+```jsx
+// ❌ Bad: Complex logic in reducer
+function reducer(state, action) {
+  switch (action.type) {
+    case 'process_data':
+      // Complex logic here
+      return processedState
+  }
+}
+
+// ✅ Good: Extract complex logic
+function processData(data) {
+  // Complex logic here
+  return processedData
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'process_data':
+      return {
+        ...state,
+        data: processData(action.data),
+      }
+  }
+}
+```
+
+## When to Use useReducer
+
+1. **Complex State Logic:**
+
+   - Multiple interdependent values that need coordinated updates
+   - Complex state transitions with multiple conditions
+   - Nested state structures with deep object updates
+   - State updates that depend on previous state values
+
+2. **Predictable State Updates:**
+
+   - Centralized state logic for easier debugging
+   - Structured update patterns with clear action types
+   - State debugging with action history tracking
+   - Immutable state updates for better reliability
+
+3. **Related State Changes:**
+   - Connected state updates that must stay in sync
+   - State dependencies that affect multiple values
+   - State history for undo/redo functionality
+   - Atomic updates to maintain data consistency
+
+## Conclusion
+
+`useReducer` is a powerful tool for managing complex state in React components. It provides a more structured approach to state updates and is particularly useful when dealing with complex state logic or related state updates.
+
+Remember to:
+
+- Keep reducers pure
+- Use action creators
+- Maintain immutable state updates
+- Use constants for action types
+- Extract complex logic from reducers
+
+When used appropriately, `useReducer` can make your state management more predictable and maintainable.
+
+## References
+
+Meta Platforms, Inc. (2024). useReducer Hook. React Documentation. https://react.dev/reference/react/useReducer
+
+Kent C. Dodds. (2023). When to useReducer vs useState. https://kentcdodds.com/blog/should-i-usestate-or-usereducer
+
+Dan Abramov. (2023). useReducer vs useState: A Complete Guide. https://overreacted.io/usereducer-vs-usestate/
+
+React Router. (2023). Managing Complex State with useReducer. https://reactrouter.com/docs/en/v6/guides/useReducer

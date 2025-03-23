@@ -1,0 +1,460 @@
+import { ArticleLayout } from '@/components/ui'
+
+export const article = {
+  author: 'Khanh Pham',
+  date: '2024-03-23',
+  title: 'useState vs useRef: A Comprehensive Comparison',
+  description:
+    'Understanding the key differences between useState and useRef hooks in React, when to use each, and their impact on component rendering and performance.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+React provides two powerful hooks for managing state and references in components: `useState` and `useRef`. While they might seem similar at first glance, they serve different purposes and have distinct behaviors. Let's dive deep into their differences and use cases.
+
+## What is useState?
+
+`useState` is a React Hook that lets you add state variables to your component. It returns an array with exactly two elements:
+
+1. The current state value
+2. A setter function to update that state
+
+```jsx
+const [count, setCount] = useState(0)
+```
+
+When you update state using `setCount`, React will:
+
+- Schedule a re-render of your component
+- Update the UI to reflect the new state
+- Maintain the state between renders
+
+### State Updates and Batching
+
+React batches state updates for performance optimization. When you call multiple state updates in the same event handler or effect, React will batch them together and perform a single re-render:
+
+```jsx
+function BatchExample() {
+  const [count, setCount] = useState(0)
+  const [text, setText] = useState('')
+
+  function handleClick() {
+    setCount((c) => c + 1) // First update
+    setText('Updated') // Second update
+    // React will batch these updates and re-render once
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Count: {count}, Text: {text}
+    </button>
+  )
+}
+```
+
+### State Updates and Closures
+
+One common gotcha with `useState` is closure behavior in event handlers. The state value captured in a closure will be the value from when the closure was created:
+
+```jsx
+function ClosureExample() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    // This closure captures the initial count value (0)
+    setTimeout(() => {
+      console.log('Count:', count)
+    }, 1000)
+  }
+
+  return <button onClick={handleClick}>Count: {count}</button>
+}
+```
+
+To fix this, you can use the functional update form of `setState`:
+
+```jsx
+function FixedClosureExample() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    setTimeout(() => {
+      setCount((c) => c + 1) // Uses the latest count value
+    }, 1000)
+  }
+
+  return <button onClick={handleClick}>Count: {count}</button>
+}
+```
+
+## What is useRef?
+
+`useRef` is a React Hook that lets you reference a value that's not needed for rendering. It returns a ref object with a single `current` property that you can read or modify:
+
+```jsx
+const countRef = useRef(0)
+```
+
+Unlike state, updating a ref doesn't trigger a re-render. The value persists between renders but changes to it don't cause the component to update.
+
+### Ref Object Persistence
+
+The ref object returned by `useRef` remains stable across re-renders. This means:
+
+1. The same ref object is returned on every render
+2. The `current` property can be modified without triggering re-renders
+3. The ref object's identity remains the same throughout the component's lifecycle
+
+```jsx
+function RefPersistenceExample() {
+  const ref = useRef({ count: 0 })
+
+  useEffect(() => {
+    // This ref object is the same on every render
+    console.log('Ref object:', ref)
+  })
+
+  return (
+    <button
+      onClick={() => {
+        ref.current.count += 1
+        console.log('Count:', ref.current.count)
+      }}
+    >
+      Increment
+    </button>
+  )
+}
+```
+
+### Ref vs State for Mutable Values
+
+When you need to store a mutable value that shouldn't trigger re-renders, `useRef` is the better choice:
+
+```jsx
+function MutableValueExample() {
+  const [count, setCount] = useState(0)
+  const renderCount = useRef(0)
+
+  useEffect(() => {
+    renderCount.current += 1
+    console.log('Renders:', renderCount.current)
+  })
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <p>Renders: {renderCount.current}</p>
+      <button onClick={() => setCount((c) => c + 1)}>Increment</button>
+    </div>
+  )
+}
+```
+
+## Key Differences
+
+### 1. Re-rendering Behavior
+
+**useState:**
+
+- Triggers re-renders when the state changes
+- Updates are reflected in the UI
+- State changes are asynchronous
+- Updates are batched for performance
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0)
+
+  return <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+}
+```
+
+**useRef:**
+
+- Doesn't trigger re-renders when the value changes
+- Changes are immediate and synchronous
+- Value changes don't affect the UI
+- Updates are not batched
+
+```jsx
+function Counter() {
+  const countRef = useRef(0)
+
+  return (
+    <button
+      onClick={() => {
+        countRef.current += 1
+        console.log(countRef.current)
+      }}
+    >
+      Count: {countRef.current}
+    </button>
+  )
+}
+```
+
+### 2. Value Persistence
+
+**useState:**
+
+- State is reset when the component unmounts
+- Each instance of the component has its own state
+- State updates are batched for performance
+- State values are immutable (should be updated via setter)
+
+**useRef:**
+
+- Value persists between renders
+- Same ref object is maintained throughout the component's lifecycle
+- Updates are immediate and not batched
+- Ref values are mutable (can be modified directly)
+
+### 3. Use Cases
+
+**useState is best for:**
+
+- Values that affect the UI
+- Data that needs to trigger re-renders
+- Form inputs
+- Toggle states
+- Counters
+- Any data that should be displayed
+
+```jsx
+function Form() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      await submitForm({ name, email })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Name"
+      />
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <button disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </button>
+    </form>
+  )
+}
+```
+
+**useRef is best for:**
+
+- Storing mutable values that shouldn't trigger re-renders
+- Accessing DOM elements directly
+- Storing previous values
+- Timer IDs
+- Any value that shouldn't cause UI updates
+
+```jsx
+function Timer() {
+  const timerRef = useRef(null)
+  const [isRunning, setIsRunning] = useState(false)
+
+  function startTimer() {
+    timerRef.current = setInterval(() => {
+      console.log('Tick')
+    }, 1000)
+    setIsRunning(true)
+  }
+
+  function stopTimer() {
+    clearInterval(timerRef.current)
+    setIsRunning(false)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [])
+
+  return (
+    <div>
+      <p>Timer is {isRunning ? 'running' : 'stopped'}</p>
+      <button onClick={isRunning ? stopTimer : startTimer}>
+        {isRunning ? 'Stop' : 'Start'}
+      </button>
+    </div>
+  )
+}
+```
+
+## Common Patterns
+
+### 1. Storing Previous Values
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0)
+  const prevCountRef = useRef(count)
+
+  useEffect(() => {
+    prevCountRef.current = count
+  }, [count])
+
+  return (
+    <div>
+      <p>Current: {count}</p>
+      <p>Previous: {prevCountRef.current}</p>
+      <button onClick={() => setCount((c) => c + 1)}>Increment</button>
+    </div>
+  )
+}
+```
+
+### 2. Accessing DOM Elements
+
+```jsx
+function InputFocus() {
+  const inputRef = useRef(null)
+  const [isFocused, setIsFocused] = useState(false)
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+      />
+      <button onClick={() => inputRef.current.focus()}>Focus Input</button>
+      <p>Input is {isFocused ? 'focused' : 'not focused'}</p>
+    </div>
+  )
+}
+```
+
+### 3. Storing Mutable Values in Effects
+
+```jsx
+function EffectExample() {
+  const [count, setCount] = useState(0)
+  const countRef = useRef(count)
+
+  useEffect(() => {
+    countRef.current = count
+  }, [count])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Current count:', countRef.current)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return <button onClick={() => setCount((c) => c + 1)}>Count: {count}</button>
+}
+```
+
+## Performance Considerations
+
+1. **useState:**
+
+   - Each state update causes a re-render
+   - State updates are batched for performance
+   - Use for values that need to affect the UI
+   - Can impact performance if used excessively
+   - Consider using `useReducer` for complex state logic
+
+2. **useRef:**
+   - No re-renders on value changes
+   - Updates are synchronous
+   - Use for values that shouldn't trigger UI updates
+   - Better performance for mutable values
+   - Ideal for storing values that don't need UI updates
+
+## Best Practices
+
+1. Use `useState` when:
+
+   - The value needs to be displayed in the UI
+   - Changes should trigger re-renders
+   - You need to track form inputs
+   - You're managing component state
+   - You need to respond to state changes in effects
+
+2. Use `useRef` when:
+   - You need to store mutable values without triggering re-renders
+   - You're accessing DOM elements directly
+   - You need to store values between renders without affecting the UI
+   - You're working with timers or intervals
+   - You need to store values that shouldn't trigger effects
+
+## Common Pitfalls and Solutions
+
+1. **State Updates in Effects**
+
+```jsx
+// ❌ Bad: Infinite loop
+useEffect(() => {
+  setCount(count + 1)
+}, [count])
+
+// ✅ Good: Use functional updates
+useEffect(() => {
+  setCount((c) => c + 1)
+}, [])
+```
+
+2. **Ref Updates in Render**
+
+```jsx
+// ❌ Bad: Direct ref mutation during render
+function BadExample() {
+  const ref = useRef(0)
+  ref.current += 1 // This can cause issues
+  return <div>{ref.current}</div>
+}
+
+// ✅ Good: Update refs in effects or event handlers
+function GoodExample() {
+  const ref = useRef(0)
+  useEffect(() => {
+    ref.current += 1
+  })
+  return <div>{ref.current}</div>
+}
+```
+
+## Conclusion
+
+Understanding the differences between `useState` and `useRef` is crucial for writing efficient React components. While `useState` is perfect for managing UI state and triggering re-renders, `useRef` is ideal for storing mutable values that shouldn't affect the component's rendering.
+
+Choose `useState` when you need to update the UI, and `useRef` when you need to store values that shouldn't trigger re-renders. This understanding will help you write more performant and maintainable React applications.
+
+## References
+
+Meta Platforms, Inc. (2024). useState Hook. React Documentation. https://react.dev/reference/react/useState
+
+Meta Platforms, Inc. (2024). useRef Hook. React Documentation. https://react.dev/reference/react/useRef
+
+Yi, T. (2023, December 19). When to use useRef instead of useState. Dev.to. https://dev.to/trinityyi/when-to-use-useref-instead-of-usestate-3h4o
+
+Moretti, F. (2023, November 15). useState vs useRef: Understanding the differences. Francisco Moretti's Blog. https://www.franciscomoretti.com/blog/usestate-vs-useref

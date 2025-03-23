@@ -1,0 +1,428 @@
+import { ArticleLayout } from '@/components/ui'
+
+export const article = {
+  author: 'Khanh Pham',
+  date: '2024-03-23',
+  title: 'useCallback vs useMemo: A Deep Dive into React Performance Hooks',
+  description:
+    'Understanding the differences between useCallback and useMemo hooks in React, their use cases, and how to optimize component performance effectively.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+React provides two powerful hooks for optimizing component performance: `useCallback` and `useMemo`. While they might seem similar at first glance, they serve different purposes and have distinct behaviors. Let's explore their differences and use cases.
+
+## Quick Comparison
+
+### Parameters and Return Values
+
+| Aspect           | useCallback           | useMemo                                 |
+| ---------------- | --------------------- | --------------------------------------- |
+| Parameters       | `(fn, dependencies)`  | `(computeValue, dependencies)`          |
+| First Parameter  | Function to memoize   | Function that returns value to memoize  |
+| Second Parameter | Array of dependencies | Array of dependencies                   |
+| Return Value     | Memoized function     | Memoized computed value                 |
+| Type of Return   | Function reference    | Any value (number, object, array, etc.) |
+
+### Behavior and Usage
+
+| Aspect              | useCallback                                    | useMemo                                                     |
+| ------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| When to Use         | When passing callbacks to child components     | When computing expensive values                             |
+| Re-creation Trigger | When dependencies change                       | When dependencies change                                    |
+| Performance Impact  | Prevents child component re-renders            | Prevents expensive recalculations                           |
+| Memory Usage        | Stores function reference                      | Stores computed value                                       |
+| Common Use Cases    | Event handlers, callbacks, effect dependencies | Complex calculations, object creation, data transformations |
+
+### Technical Details
+
+| Aspect              | useCallback                                 | useMemo                                 |
+| ------------------- | ------------------------------------------- | --------------------------------------- |
+| Reference Stability | Maintains same function reference           | Maintains same value reference          |
+| Dependency Changes  | Creates new function if dependencies change | Recomputes value if dependencies change |
+| Render Impact       | No re-render on function change             | No re-render on value change            |
+| Optimization Level  | Function-level memoization                  | Value-level memoization                 |
+| Best Used With      | `React.memo()` components                   | Expensive computations                  |
+
+## What is useCallback?
+
+`useCallback` is a React Hook that lets you cache a function definition between re-renders. It takes two parameters:
+
+1. A function that you want to cache
+2. An array of dependencies that the function depends on
+
+```jsx
+const cachedFn = useCallback(fn, dependencies)
+```
+
+### How useCallback Works
+
+When you wrap a function with `useCallback`, React will:
+
+- Return the same function instance between renders if dependencies haven't changed
+- Create a new function instance if any dependency has changed
+- Cache the function definition until dependencies change
+
+```jsx
+function ProductPage({ productId, referrer }) {
+  const handleSubmit = useCallback(
+    (orderDetails) => {
+      post('/product/' + productId + '/buy', {
+        referrer,
+        orderDetails,
+      })
+    },
+    [productId, referrer],
+  )
+
+  return <ShippingForm onSubmit={handleSubmit} />
+}
+```
+
+## What is useMemo?
+
+`useMemo` is a React Hook that lets you cache the result of a computation between re-renders. It also takes two parameters:
+
+1. A function that returns what you want to cache
+2. An array of dependencies that the computation depends on
+
+```jsx
+const cachedValue = useMemo(() => computeExpensiveValue(a, b), [a, b])
+```
+
+### How useMemo Works
+
+When you wrap a computation with `useMemo`, React will:
+
+- Return the cached value between renders if dependencies haven't changed
+- Recompute the value if any dependency has changed
+- Cache the computed value until dependencies change
+
+```jsx
+function ExpensiveComponent({ items }) {
+  const sortedItems = useMemo(() => {
+    return items.sort((a, b) => b.price - a.price)
+  }, [items])
+
+  return (
+    <ul>
+      {sortedItems.map((item) => (
+        <li key={item.id}>
+          {item.name}: ${item.price}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+## Key Differences
+
+### 1. Purpose
+
+**useCallback:**
+
+- Caches function definitions
+- Used for optimizing child components that receive callbacks as props
+- Prevents unnecessary re-renders of child components that depend on these callbacks
+
+```jsx
+function ParentComponent() {
+  const [count, setCount] = useState(0)
+
+  // Without useCallback, this function would be recreated on every render
+  const handleClick = useCallback(() => {
+    console.log('Button clicked')
+  }, []) // Empty dependency array since it doesn't depend on any values
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <ChildComponent onClick={handleClick} />
+    </div>
+  )
+}
+```
+
+**useMemo:**
+
+- Caches computed values
+- Used for optimizing expensive computations
+- Prevents unnecessary recalculations of complex values
+
+```jsx
+function ExpensiveComponent({ data }) {
+  // Without useMemo, this expensive calculation would run on every render
+  const processedData = useMemo(() => {
+    return data.map((item) => ({
+      ...item,
+      total: item.price * item.quantity,
+      tax: item.price * 0.1,
+    }))
+  }, [data])
+
+  return <DataTable data={processedData} />
+}
+```
+
+### 2. Return Value
+
+**useCallback:**
+
+- Returns a memoized function
+- The function reference remains stable between renders
+- Useful for callback props in child components
+
+```jsx
+function SearchComponent({ onSearch }) {
+  const [query, setQuery] = useState('')
+
+  const handleSearch = useCallback(() => {
+    onSearch(query)
+  }, [query, onSearch])
+
+  return (
+    <div>
+      <input value={query} onChange={(e) => setQuery(e.target.value)} />
+      <button onClick={handleSearch}>Search</button>
+    </div>
+  )
+}
+```
+
+**useMemo:**
+
+- Returns a memoized value
+- The computed value remains stable between renders
+- Useful for expensive calculations or complex object creation
+
+```jsx
+function ChartComponent({ data }) {
+  const chartData = useMemo(() => {
+    return {
+      labels: data.map((item) => item.date),
+      datasets: [
+        {
+          data: data.map((item) => item.value),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
+    }
+  }, [data])
+
+  return <LineChart data={chartData} />
+}
+```
+
+## When to Use Each
+
+### Use useCallback When:
+
+1. **Passing callbacks to optimized child components:**
+
+```jsx
+const MemoizedChild = memo(function Child({ onClick }) {
+  return <button onClick={onClick}>Click me</button>
+})
+
+function Parent() {
+  const handleClick = useCallback(() => {
+    console.log('Clicked')
+  }, [])
+
+  return <MemoizedChild onClick={handleClick} />
+}
+```
+
+2. **Using callbacks in useEffect dependencies:**
+
+```jsx
+function ChatRoom({ roomId }) {
+  const [message, setMessage] = useState('')
+
+  const createOptions = useCallback(() => {
+    return {
+      serverUrl: 'https://localhost:1234',
+      roomId: roomId,
+    }
+  }, [roomId])
+
+  useEffect(() => {
+    const options = createOptions()
+    const connection = createConnection(options)
+    connection.connect()
+    return () => connection.disconnect()
+  }, [createOptions])
+}
+```
+
+### Use useMemo When:
+
+1. **Computing expensive values:**
+
+```jsx
+function ExpensiveComponent({ items }) {
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => {
+      return sum + item.price * item.quantity
+    }, 0)
+  }, [items])
+
+  return <div>Total: ${total}</div>
+}
+```
+
+2. **Creating complex objects:**
+
+```jsx
+function Chart({ data }) {
+  const chartConfig = useMemo(
+    () => ({
+      type: 'line',
+      data: {
+        labels: data.map((d) => d.date),
+        datasets: [
+          {
+            data: data.map((d) => d.value),
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+        },
+      },
+    }),
+    [data],
+  )
+
+  return <ChartComponent config={chartConfig} />
+}
+```
+
+## Performance Considerations
+
+### Advantages
+
+| Feature             | useCallback                                                 | useMemo                                                              |
+| ------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| Primary Purpose     | Caches function definitions                                 | Caches computed values                                               |
+| Main Benefit        | Prevents unnecessary re-renders of child components         | Prevents expensive recalculations                                    |
+| Reference Stability | Maintains referential equality of functions                 | Maintains referential equality of computed values                    |
+| Use Cases           | Optimizing callback props, preventing infinite effect loops | Optimizing expensive computations, preventing unnecessary re-renders |
+
+### Disadvantages
+
+| Feature       | useCallback                                           | useMemo                                    |
+| ------------- | ----------------------------------------------------- | ------------------------------------------ |
+| Overhead      | Adds overhead for simple functions                    | Adds overhead for simple computations      |
+| Complexity    | Can be overused, leading to unnecessary complexity    | Can be overused, leading to memory bloat   |
+| Effectiveness | May not provide benefits for non-optimized components | May not provide benefits for simple values |
+| Maintenance   | Requires careful dependency management                | Requires careful dependency management     |
+
+## Best Practices
+
+1. **Don't Overuse:**
+
+```jsx
+// ❌ Bad: Unnecessary useCallback
+const handleClick = useCallback(() => {
+  console.log('Clicked')
+}, [])
+
+// ✅ Good: Simple function doesn't need memoization
+const handleClick = () => {
+  console.log('Clicked')
+}
+```
+
+2. **Use with memo:**
+
+```jsx
+// ✅ Good: useCallback with memo
+const MemoizedButton = memo(function Button({ onClick }) {
+  return <button onClick={onClick}>Click me</button>
+})
+
+function Parent() {
+  const handleClick = useCallback(() => {
+    console.log('Clicked')
+  }, [])
+
+  return <MemoizedButton onClick={handleClick} />
+}
+```
+
+3. **Proper Dependency Management:**
+
+```jsx
+// ❌ Bad: Missing dependencies
+const handleSubmit = useCallback(() => {
+  submitForm(formData)
+}, []) // Missing formData dependency
+
+// ✅ Good: Proper dependency array
+const handleSubmit = useCallback(() => {
+  submitForm(formData)
+}, [formData])
+```
+
+## Common Pitfalls
+
+1. **Incorrect Dependencies:**
+
+```jsx
+// ❌ Bad: Missing dependencies
+const handleClick = useCallback(() => {
+  console.log(count) // count is used but not in dependencies
+}, [])
+
+// ✅ Good: Include all dependencies
+const handleClick = useCallback(() => {
+  console.log(count)
+}, [count])
+```
+
+2. **Unnecessary Memoization:**
+
+```jsx
+// ❌ Bad: Memoizing simple values
+const simpleValue = useMemo(() => 1 + 1, [])
+
+// ✅ Good: Direct value assignment
+const simpleValue = 2
+```
+
+## Conclusion
+
+Understanding when to use `useCallback` and `useMemo` is crucial for optimizing React component performance. While both hooks help prevent unnecessary re-renders and computations, they serve different purposes:
+
+- Use `useCallback` for memoizing function definitions, especially when passing callbacks to optimized child components
+- Use `useMemo` for memoizing computed values, especially for expensive calculations or complex object creation
+
+Remember that these hooks come with their own overhead, so use them judiciously and only when they provide clear performance benefits.
+
+## References
+
+Meta Platforms, Inc. (2024). useCallback Hook. React Documentation. https://react.dev/reference/react/useCallback
+
+Meta Platforms, Inc. (2024). useMemo Hook. React Documentation. https://react.dev/reference/react/useMemo
+
+DeadSimpleChat. (2023). React useMemo vs useCallback: A Complete Guide. https://deadsimplechat.com/blog/react-usememo-vs-usecallback/
+
+Developer Way. (2023). How to use memo and useCallback. https://www.developerway.com/posts/how-to-use-memo-use-callback
+
+Refine. (2023). React useCallback Guide with Examples. https://refine.dev/blog/react-usecallback-guide/#example
