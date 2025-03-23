@@ -48,10 +48,11 @@ export default async function Home() {
             Hi, I&apos;m Khanh. Welcome to my journey
           </h1>
           <p className="mt-5 text-base text-zinc-600 dark:text-zinc-300">
-            I&apos;m a web developer and a curious learner who loves exploring
-            new ideas and sharing knowledge. This blog is where I document what
-            I read, study, and discover—whether it&apos;s about problem-solving,
-            creativity, or ways to improve how we work and think.
+            I&apos;m a web developer with 2+ years experience and a curious
+            learner who loves exploring new ideas and sharing knowledge. This
+            blog is where I document what I read, study, and discover—whether
+            it&apos;s about problem-solving, creativity, or ways to improve how
+            we work and think.
             <br />
           </p>
           <p className="text-base text-zinc-600 dark:text-zinc-300">
