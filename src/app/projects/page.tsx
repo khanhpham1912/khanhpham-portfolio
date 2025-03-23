@@ -1,6 +1,20 @@
-import { type Metadata } from 'next'
 import { SimpleLayout } from '@/components/ui/SimpleLayout'
 import { ProjectCard } from '@/components/ui/ProjectCard'
+import { Metadata } from 'next'
+
+// images
+import wms1 from '@/public/wms/wms1.png'
+import wms2 from '@/public/wms/wms2.png'
+import wms3 from '@/public/wms/wms3.png'
+import oms1 from '@/public/oms/oms1.png'
+import oms2 from '@/public/oms/oms2.png'
+import oms3 from '@/public/oms/oms3.png'
+import tms1 from '@/public/tms/tms1.png'
+import tms2 from '@/public/tms/tms2.png'
+import tms3 from '@/public/tms/tms3.png'
+import platform1 from '@/public/platform/platform1.png'
+import platform2 from '@/public/platform/platform2.png'
+import platform3 from '@/public/platform/platform3.png'
 
 const projects = [
   {
@@ -8,7 +22,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'A comprehensive system for inventory tracking, workflow management, and data operations for warehouses.',
-    images: ['/wms/wms1.png', '/wms/wms2.png', '/wms/wms3.png'],
+    images: [wms1, wms2, wms3],
     features: [
       'Item CRUD, inbound/outbound workflows, role management',
       'Scanner integrations for efficient inventory tracking',
@@ -17,12 +31,15 @@ const projects = [
     ],
     techStack: [
       'TypeScript',
+      'Axios',
       'Next.js',
       'TanStack Query',
       'Ant Design',
       'Web Workers',
       'SheetJS',
       'TailwindCSS',
+      'Recharts',
+      'Mitt',
     ],
   },
   {
@@ -30,7 +47,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'Real-time vehicle tracking and shipment management system with map integrations.',
-    images: ['/tms/tms1.png', '/tms/tms2.png', '/tms/tms3.png'],
+    images: [tms1, tms2, tms3],
     features: [
       'Core shipment flows with real-time updates',
       'Real-time vehicle tracking with Amazon Location Service',
@@ -53,7 +70,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'System for optimizing order processing, booking management, and inventory reporting.',
-    images: ['/oms/oms1.png', '/oms/oms2.png', '/oms/oms3.png'],
+    images: [oms1, oms2, oms3],
     features: [
       'Optimized item imports (10,000+ records)',
       'Improved inbound/outbound order management',
@@ -75,11 +92,7 @@ const projects = [
     company: 'Wareflex Sea',
     description:
       'Hybrid e-commerce platform linking warehouses and shipping, warehouse providers with users.',
-    images: [
-      '/platform/platform1.png',
-      '/platform/platform2.png',
-      '/platform/platform3.png',
-    ],
+    images: [platform1, platform2, platform3],
     features: [
       'Optimized loading by combining client and server components',
       'Warehouse and shipping provider integration',
@@ -87,6 +100,7 @@ const projects = [
       'Fast navigation and data retrieval with full-route caching',
     ],
     techStack: ['TypeScript', 'Next.js', 'TanStack Query', 'Tailwind CSS'],
+    // githubLink: 'abc',
   },
 ]
 
@@ -101,8 +115,8 @@ export default function Projects() {
       title="Projects"
       intro="A collection of my professional work and projects, showcasing various systems and applications I've developed."
     >
-      <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {projects.map((project) => (
             <ProjectCard {...project} key={project.name} />
           ))}

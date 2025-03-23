@@ -37,30 +37,15 @@ const resume: Array<RoleProps> = [
   },
 ]
 
-import { cn } from '@/lib/utils'
-// import { Caveat } from 'next/font/google'
-// const caveat = Caveat({ subsets: ['latin'] })
-
 export default async function Home() {
   const articles = (await getAllArticles()).slice(0, 4)
 
   return (
-    <>
+    <div className="">
       <Container className="mt-9">
         <div className="flex w-full flex-col gap-5">
-          <h1
-            className={cn(
-              'inline-flex gap-2 text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100',
-              // caveat.className,
-            )}
-          >
-            Hi, I&apos;m Khanh . Welcome to my journey
-            {/* <div className="relative inline-block font-extrabold">
-              <span className="absolute bottom-3 left-0 h-6 w-full rounded-lg bg-[#A3EED6]"></span>
-              <span className={`relative z-10 text-6xl ${caveat.className}`}>
-                Khanh
-              </span>
-            </div> */}
+          <h1 className="inline-flex gap-2 text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
+            Hi, I&apos;m Khanh. Welcome to my journey
           </h1>
           <p className="mt-5 text-base text-zinc-600 dark:text-zinc-300">
             I&apos;m a web developer and a curious learner who loves exploring
@@ -88,6 +73,6 @@ export default async function Home() {
           </div>
         </div>
       </Container>
-    </>
+    </div>
   )
 }
