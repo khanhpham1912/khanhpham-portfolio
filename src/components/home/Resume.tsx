@@ -53,7 +53,7 @@ export const Resume = ({ resume }: { resume: RoleProps[] }) => {
         ))}
       </ol>
       <Button
-        href="https://drive.google.com/file/d/1rHYsnjqfBTfY2viiqD6r4SbNHIf6teSx/view?usp=sharing"
+        href="https://drive.google.com/file/d/1SzEBjAsCGie7-PRoIYjH1cj8rIR3ZTYU/view?usp=sharing"
         variant="secondary"
         className="group mt-6 w-full"
       >
