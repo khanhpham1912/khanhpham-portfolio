@@ -25,7 +25,7 @@ const resume: Array<RoleProps> = [
     title: 'Frontend Developer',
     logo: logoInsead,
     start: '02/2023',
-    end: '07/2023',
+    end: '03/2023',
   },
   {
     company: 'HCL Tech',
