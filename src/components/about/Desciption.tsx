@@ -45,6 +45,7 @@ export const Description = () => {
                 alt=""
                 sizes="(min-width: 1024px) 32rem, 20rem"
                 className="h-full w-full object-cover"
+                priority
               />
             </div>
             <div className="space-y-4 pt-4">
