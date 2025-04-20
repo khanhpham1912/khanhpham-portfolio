@@ -11,7 +11,7 @@ export default function Test() {
   return (
     <div>
       <div>{shouldShowModal ? 'Open' : 'Close'}</div>
-      <div>Is Mobile: {isMobile}</div>
+      <div>Is Mobile: {JSON.stringify(isMobile)}</div>
     </div>
   )
 }
