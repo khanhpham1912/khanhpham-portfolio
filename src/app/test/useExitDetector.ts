@@ -1,6 +1,5 @@
 // hooks
-import { useEffect, useState, useCallback } from 'react'
-// import { useRouter } from 'next/router'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useIsMobile } from './useIsMobile'
 
 interface StorageData {
@@ -10,20 +9,19 @@ interface StorageData {
 }
 
 const STORAGE_KEY = 'exitSurveyData'
+const MIN_TIME_ON_PAGE = 0.1 * 60 * 1000 // 2 minutes in milliseconds
 
 interface UseExitDetectorProps {
   isExitSignupPopup: boolean
 }
 
-export const useExitDetector = () => {
-  // const router = useRouter()
-  // const isPageTypeValid = useMemo(() => !!getCurrentPageType(router.pathname), [router.pathname]);
-
+export const useExitDetector = ({
+  isExitSignupPopup,
+}: UseExitDetectorProps) => {
   const [shouldShowModal, setShouldShowModal] = useState(false)
-  const isMobile = useIsMobile()
-  const SCROLL_THRESHOLD = 50 // pixels to consider as "quick scroll up"
-  const IDLE_TIMEOUT = 30000 // 30 seconds for idle detection
 
+  const initTime = useMemo(() => Date.now(), [])
+  const isMobile = useIsMobile()
   const getCurrentUserAgent = useCallback(() => {
     return navigator.userAgent
   }, [])
@@ -57,9 +55,20 @@ export const useExitDetector = () => {
   )
 
   const canShowSurvey = useCallback(() => {
-    // Check session storage first
-    if (sessionStorage.getItem('isPopupSurvey') === 'true') {
-      return false
+    // Check if user has been on page long enough
+    const currentTime = Date.now()
+    const elapsedTime = currentTime - initTime
+    const isTimeThresholdReached = elapsedTime >= MIN_TIME_ON_PAGE
+
+    if (isExitSignupPopup) {
+      if (sessionStorage.getItem('isPopupSurvey') === 'true') return false
+    } else {
+      if (
+        !isTimeThresholdReached ||
+        sessionStorage.getItem('isPopupSurvey') === 'true'
+      ) {
+        return false
+      }
     }
 
     const storageData = getStorageData()
@@ -83,13 +92,17 @@ export const useExitDetector = () => {
     }
 
     return true
-  }, [getStorageData, getCurrentUserAgent, updateStorageData])
+  }, [
+    initTime,
+    isExitSignupPopup,
+    getStorageData,
+    getCurrentUserAgent,
+    updateStorageData,
+  ])
 
   const showModal = useCallback(() => {
     if (!canShowSurvey()) return
-
     setShouldShowModal(true)
-    sessionStorage.setItem('isPopupSurvey', 'true')
 
     const storageData = getStorageData()
     updateStorageData({
@@ -100,92 +113,73 @@ export const useExitDetector = () => {
   // Initialize storage data only when mounted and data is undefined
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (isExitSignupPopup) return
 
     // Initialize storage if needed
     const existingData = getStorageData()
-    console.log('existingData:', existingData)
     if (!existingData) {
       initStorageData()
     }
-    // if (!isPageTypeValid || isExitSignupPopup) return
 
     let timeoutId: NodeJS.Timeout
-    let idleTimer: NodeJS.Timeout
-    let lastScrollY = window.scrollY
-
-    // Desktop-specific handler
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0) {
         clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
           showModal()
-        }, 300)
+        }, 500)
       }
     }
 
-    // Mobile-specific handlers
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      const scrollDiff = lastScrollY - currentScrollY
-
-      if (scrollDiff > SCROLL_THRESHOLD) {
-        showModal()
-      }
-
-      lastScrollY = currentScrollY
-    }
-
-    const resetIdleTimer = () => {
-      clearTimeout(idleTimer)
-      idleTimer = setTimeout(() => {
-        showModal()
-      }, IDLE_TIMEOUT)
-    }
-
-    const handlePopState = () => {
-      window.history.pushState(null, document.title, window.location.href)
-      // e.preventDefault()
-      showModal()
-      // window.history.pushState({ page: 'exit-intent' }, '', window.location.href);
-    }
-
-    // Set up device-specific listeners
-    if (isMobile) {
-      // Mobile listeners
-      window.addEventListener('scroll', handleScroll)
-      window.addEventListener('popstate', handlePopState)
-      document.addEventListener('touchstart', resetIdleTimer)
-      document.addEventListener('touchmove', resetIdleTimer)
-      resetIdleTimer()
-    } else {
-      // Desktop listener
-      // document.addEventListener('mouseleave', handleMouseLeave)
-    }
+    document.addEventListener('mouseleave', handleMouseLeave)
 
     // Cleanup function
     return () => {
-      if (isMobile) {
-        window.removeEventListener('scroll', handleScroll)
-        window.removeEventListener('popstate', handlePopState)
-        document.removeEventListener('touchstart', resetIdleTimer)
-        document.removeEventListener('touchmove', resetIdleTimer)
-        clearTimeout(idleTimer)
-      } else {
-        document.removeEventListener('mouseleave', handleMouseLeave)
-        clearTimeout(timeoutId)
+      document.removeEventListener('mouseleave', handleMouseLeave)
+      clearTimeout(timeoutId)
+    }
+  }, [getStorageData, initStorageData, isExitSignupPopup, showModal])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' && !isMobile) return
+    if (isExitSignupPopup) return
+
+    const existingData = getStorageData()
+    if (!existingData) {
+      initStorageData()
+    }
+
+    window.history.pushState(null, document.title, window.location.href)
+    const handlePopState = () => {
+      if (canShowSurvey()) {
+        setShouldShowModal(true)
+
+        const storageData = getStorageData()
+        updateStorageData({
+          numberOfPopup: (storageData?.numberOfPopup ?? 0) + 1,
+        })
+
+        window.history.pushState(null, document.title, window.location.href)
       }
     }
-  }, [getStorageData, initStorageData, showModal, SCROLL_THRESHOLD, isMobile])
+
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [
+    canShowSurvey,
+    getStorageData,
+    initStorageData,
+    isExitSignupPopup,
+    isMobile,
+    showModal,
+    updateStorageData,
+  ])
 
   const markSurveyAsFilled = useCallback(() => {
     updateStorageData({ isFillSurvey: true })
   }, [updateStorageData])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.pushState(null, document.title, window.location.href)
-    }
-  }, [])
 
   return {
     shouldShowModal,
