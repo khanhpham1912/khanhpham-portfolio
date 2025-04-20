@@ -152,16 +152,16 @@ export const useExitDetector = ({
     window.history.pushState(null, document.title, window.location.href)
 
     const handlePopState = () => {
-      if (canShowSurvey()) {
-        setShouldShowModal(true)
+      setShouldShowModal(true)
+      window.history.pushState(null, document.title, window.location.href)
+      // if (canShowSurvey()) {
 
-        const storageData = getStorageData()
-        updateStorageData({
-          numberOfPopup: (storageData?.numberOfPopup ?? 0) + 1,
-        })
+      const storageData = getStorageData()
+      updateStorageData({
+        numberOfPopup: (storageData?.numberOfPopup ?? 0) + 1,
+      })
 
-        window.history.pushState(null, document.title, window.location.href)
-      }
+      // }
     }
 
     window.addEventListener('popstate', handlePopState)
