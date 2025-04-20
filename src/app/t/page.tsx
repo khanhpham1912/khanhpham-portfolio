@@ -1,3 +1,4 @@
+'use client'
 import { useExitIntent } from './useExitIntent'
 
 export default function Page() {
