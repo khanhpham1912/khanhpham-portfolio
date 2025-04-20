@@ -142,8 +142,9 @@ export const useExitDetector = () => {
       }, IDLE_TIMEOUT)
     }
 
-    const handlePopState = (e: PopStateEvent) => {
-      e.preventDefault()
+    const handlePopState = () => {
+      window.history.pushState(null, document.title, window.location.href)
+      // e.preventDefault()
       showModal()
       // window.history.pushState({ page: 'exit-intent' }, '', window.location.href);
     }
@@ -151,11 +152,6 @@ export const useExitDetector = () => {
     // Set up device-specific listeners
     if (isMobile) {
       // Mobile listeners
-      window.history.pushState(
-        { page: 'exit-intent' },
-        '',
-        window.location.href,
-      )
       window.addEventListener('scroll', handleScroll)
       window.addEventListener('popstate', handlePopState)
       document.addEventListener('touchstart', resetIdleTimer)
@@ -163,7 +159,7 @@ export const useExitDetector = () => {
       resetIdleTimer()
     } else {
       // Desktop listener
-      document.addEventListener('mouseleave', handleMouseLeave)
+      // document.addEventListener('mouseleave', handleMouseLeave)
     }
 
     // Cleanup function
@@ -184,6 +180,12 @@ export const useExitDetector = () => {
   const markSurveyAsFilled = useCallback(() => {
     updateStorageData({ isFillSurvey: true })
   }, [updateStorageData])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, document.title, window.location.href)
+    }
+  }, [])
 
   return {
     shouldShowModal,
