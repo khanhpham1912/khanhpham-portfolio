@@ -9,7 +9,7 @@ interface StorageData {
 }
 
 const STORAGE_KEY = 'exitSurveyData'
-const MIN_TIME_ON_PAGE = 0.1 * 60 * 1000 // 2 minutes in milliseconds
+const MIN_TIME_ON_PAGE = 0.01 * 60 * 1000 // 2 minutes in milliseconds
 
 interface UseExitDetectorProps {
   isExitSignupPopup: boolean
@@ -150,6 +150,7 @@ export const useExitDetector = ({
     }
 
     window.history.pushState(null, document.title, window.location.href)
+
     const handlePopState = () => {
       if (canShowSurvey()) {
         setShouldShowModal(true)
